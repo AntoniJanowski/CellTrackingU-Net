@@ -19,11 +19,15 @@ def read_input_tif(file_path):
         assert img.shape[0] == 1, f'Tif has more than one layer. Number of layer = {img.shape[0]}'
         return img[0]
 
-def plot_tifs(directory):
+def plot_tifs(directory, mode):
     frames = []
     for file in os.listdir(directory):
         if file.endswith(".tif"):
-            data = read_seq_tif(os.path.join(directory, file))
+            if mode == 'input':
+                data = read_input_tif(os.path.join(directory, file))
+            elif mode == 'segmentation':
+                data = read_seq_tif(os.path.join(directory, file))
+            assert mode == 'input' or mode == 'segmentation', f'Mode have to one of 2 options: "input" or "segmentation". Got: {mode}'
             frames.append(go.Frame(data=[go.Heatmap(z=data)]))
 
     fig = go.Figure(
@@ -38,8 +42,8 @@ def plot_tifs(directory):
     fig.show()
 
 # Call the function with the path to your tif file
-# plot_tifs('DIC-C2DH-HeLa/01_ST/SEG/')
+#plot_tifs('data/DIC-C2DH-HeLa/01/', 'segmentation')
 
-img = read_seq_tif('data/DIC-C2DH-HeLa/01_ST/SEG/man_seg000.tif')
-fig = px.imshow(img)
-fig.show()
+# img = read_seq_tif('data/DIC-C2DH-HeLa/01_ST/SEG/man_seg000.tif')
+# fig = px.imshow(img)
+# fig.show()
