@@ -23,7 +23,7 @@ def plot_tifs(directory):
     frames = []
     for file in os.listdir(directory):
         if file.endswith(".tif"):
-            data = read_tif(os.path.join(directory, file))
+            data = read_seq_tif(os.path.join(directory, file))
             frames.append(go.Frame(data=[go.Heatmap(z=data)]))
 
     fig = go.Figure(
@@ -40,6 +40,6 @@ def plot_tifs(directory):
 # Call the function with the path to your tif file
 # plot_tifs('DIC-C2DH-HeLa/01_ST/SEG/')
 
-img = read_tif('data/DIC-C2DH-HeLa/01_ST/SEG/man_seg000.tif')
+img = read_seq_tif('data/DIC-C2DH-HeLa/01_ST/SEG/man_seg000.tif')
 fig = px.imshow(img)
 fig.show()
