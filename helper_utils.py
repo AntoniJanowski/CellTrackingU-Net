@@ -1,11 +1,16 @@
 import os
 import rasterio
 import plotly.graph_objects as go
+import plotly.express as px
+import numpy as np
 
 def read_tif(file_path):
     # OUr tiffs have only one layer.
     with rasterio.open(file_path) as src:
-        return src.read(1)
+        img = src.read()
+        assert img.shape[0] == 1, f'Tif has more than one layer. Number of layer = {img.shape[0]}'
+        img = np.where(img != 0, 1, img)
+        return img[0]
 
 def plot_tifs(directory):
     frames = []
@@ -27,3 +32,7 @@ def plot_tifs(directory):
 
 # Call the function with the path to your tif file
 # plot_tifs('DIC-C2DH-HeLa/01_ST/SEG/')
+
+img = read_tif('data/DIC-C2DH-HeLa/01_ST/SEG/man_seg000.tif')
+fig = px.imshow(img)
+fig.show()
