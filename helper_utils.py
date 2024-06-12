@@ -44,6 +44,6 @@ def plot_tifs(directory, mode):
 # Call the function with the path to your tif file
 #plot_tifs('data/DIC-C2DH-HeLa/01/', 'segmentation')
 
-# img = read_seq_tif('data/DIC-C2DH-HeLa/01_ST/SEG/man_seg000.tif')
+# img = read_seq_tif('C:/Users/Dell/Documents/Heidelberg_hackaton/CellTrackingU-Net/data/Fluo-N2DL-HeLa/01/t000.tif')
 # fig = px.imshow(img)
 # fig.show()
