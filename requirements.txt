@@ -1,3 +1,7 @@
 rasterio
 plotly
 pandas
+torch
+matplotlib
+torchvision
+ipykernel
