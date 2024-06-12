@@ -3,6 +3,7 @@ import rasterio
 import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
+import cv2
 
 def read_seq_tif(file_path):
     # OUr tiffs have only one layer.
@@ -40,6 +41,12 @@ def plot_tifs(directory, mode):
         frames=frames
     )
     fig.show()
+
+
+def img_to_tif(prefix, input_format='png'):
+    img = cv2.imread(f'{prefix}.{input_format}')
+    cv2.imwrite(f'{prefix}.tif', img)
+    
 
 # Call the function with the path to your tif file
 #plot_tifs('data/DIC-C2DH-HeLa/01/', 'segmentation')
