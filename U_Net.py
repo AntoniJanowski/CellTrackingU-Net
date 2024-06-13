@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from U_Net_helper_functions import *
+import lightning.pytorch as pl
 
 class Convolutional_Block(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3, padding=1, stride = 1, dropout = 0.1):
@@ -23,8 +24,8 @@ class Convolutional_Block(nn.Module):
         return x
     
 
-class UNet(nn.Module):
-    def __init__(self, list_of_chanel_numbers):
+class UNet(pl.LightningModule):
+    def __init__(self, list_of_chanel_numbers, crop = None, loss_fn = torch.nn.CrossEntropyLoss(), lr = 0.001, betas = (0.9, 0.999)):
         super(UNet, self).__init__()
         self.list_of_chanel_numbers = list_of_chanel_numbers
         self.channel_pairs = [(list_of_chanel_numbers[i], list_of_chanel_numbers[i+1]) for i in range(len(list_of_chanel_numbers) - 1)]
@@ -42,6 +43,11 @@ class UNet(nn.Module):
             c_out, c_in = pair
             self.UpConvs.append(torch.nn.ConvTranspose2d(c_in, c_in, kernel_size = 2, stride = 2, ))
             self.top_path.append(Convolutional_Block(c_in, c_out))
+
+        self.crop = crop #for testing purposes, later this will be implemented into the dataloader
+        self.loss_fn = loss_fn
+        self.lr = lr
+        self.betas = betas
 
     def forward(self, x):
         residuals = []
@@ -70,6 +76,25 @@ class UNet(nn.Module):
             # print(f'Finished processing module {i}, x.shape = {x.shape}')
             
         return x
+    
+    def training_step(self, batch, batch_idx):
+        inputs, labels = batch
+
+        if self.crop != None:
+            inputs = inputs[:, :, :self.crop, :self.crop]
+            labels = labels[:, :, :self.crop, :self.crop]
+        
+        labels = labels.squeeze().long()
+        outputs = self.forward(inputs)
+        loss = self.loss_fn(outputs, labels)
+
+        print(f'Batch {batch_idx}, loss {loss}')
+
+        self.log('Training Loss', loss, on_step=True, on_epoch=True)
+        return loss
+    
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(), lr = self.lr, betas = self.betas)
     
     def generate_numpy_output_from_single_image(self, img):
         '''

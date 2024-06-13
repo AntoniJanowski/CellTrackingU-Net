@@ -29,9 +29,9 @@ class TIF_dataset(Dataset):
 
     def __getitem__(self, idx):
         image = Image.open(self.path_list_data[idx])
-        image_np = np.array(image)
+        image_np = np.array(image).astype('float32')
         label = Image.open(self.path_list_label[idx])
-        label_np = np.array(label)
+        label_np = np.array(label).astype('float32')
         label_np = np.where(label_np != 0, 1, label_np)
 
         image_tensor = torch.from_numpy(image_np).unsqueeze(0)
