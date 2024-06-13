@@ -25,7 +25,7 @@ class Convolutional_Block(nn.Module):
     
 
 class UNet(pl.LightningModule):
-    def __init__(self, list_of_chanel_numbers, crop = None, loss_fn = torch.nn.CrossEntropyLoss(), lr = 0.001, betas = (0.9, 0.999)):
+    def __init__(self, list_of_chanel_numbers, crop = None, loss_fn = torch.nn.CrossEntropyLoss(), lr = 0.001, betas = (0.9, 0.999), kernel_size=3, dropout = 0.1, padding = 1):
         super(UNet, self).__init__()
         self.list_of_chanel_numbers = list_of_chanel_numbers
         self.channel_pairs = [(list_of_chanel_numbers[i], list_of_chanel_numbers[i+1]) for i in range(len(list_of_chanel_numbers) - 1)]
@@ -35,14 +35,14 @@ class UNet(pl.LightningModule):
         self.pool = nn.MaxPool2d(kernel_size = 2)
         for pair in self.channel_pairs:
             c_in, c_out = pair
-            self.bottom_path.append(Convolutional_Block(c_in, c_out))
-        self.bottom_block = Convolutional_Block(list_of_chanel_numbers[-1], list_of_chanel_numbers[-1])
+            self.bottom_path.append(Convolutional_Block(c_in, c_out, kernel_size=kernel_size, dropout = dropout, padding = padding))
+        self.bottom_block = Convolutional_Block(list_of_chanel_numbers[-1], list_of_chanel_numbers[-1], kernel_size=kernel_size, dropout = dropout, padding=padding)
         self.channel_pairs[0] = (2, list_of_chanel_numbers[1]) # I want the model to return a tensor of shape 2 x H x W, because we want to predict only two classes
         self.channel_pairs.reverse()
         for pair in self.channel_pairs:
             c_out, c_in = pair
             self.UpConvs.append(torch.nn.ConvTranspose2d(c_in, c_in, kernel_size = 2, stride = 2, ))
-            self.top_path.append(Convolutional_Block(c_in, c_out))
+            self.top_path.append(Convolutional_Block(c_in, c_out, kernel_size=kernel_size, dropout = dropout, padding=padding))
 
         self.crop = crop #for testing purposes, later this will be implemented into the dataloader
         self.loss_fn = loss_fn
