@@ -25,7 +25,8 @@ class Convolutional_Block(nn.Module):
     
 
 class UNet(pl.LightningModule):
-    def __init__(self, list_of_chanel_numbers, crop = None, loss_fn = torch.nn.CrossEntropyLoss(), lr = 0.001, betas = (0.9, 0.999), kernel_size=3, dropout = 0.1, padding = 1):
+    def __init__(self, list_of_chanel_numbers, crop = None, loss_fn = torch.nn.CrossEntropyLoss(), lr = 0.001, betas = (0.9, 0.999), kernel_size=3, dropout = 0.1, padding = 1,
+                  log = False):
         super(UNet, self).__init__()
         self.list_of_chanel_numbers = list_of_chanel_numbers
         self.channel_pairs = [(list_of_chanel_numbers[i], list_of_chanel_numbers[i+1]) for i in range(len(list_of_chanel_numbers) - 1)]
@@ -48,6 +49,10 @@ class UNet(pl.LightningModule):
         self.loss_fn = loss_fn
         self.lr = lr
         self.betas = betas
+        self.log = log
+        self.kernel_size = kernel_size
+        self.padding = padding
+        self.dropout = dropout
 
     def forward(self, x):
         residuals = []
@@ -88,9 +93,25 @@ class UNet(pl.LightningModule):
         outputs = self.forward(inputs)
         loss = self.loss_fn(outputs, labels)
 
-        print(f'Batch {batch_idx}, loss {loss}')
+        print(f'   TRRAINING: Batch {batch_idx}, loss {loss}')
+        if self.log == True:
+            self.log('Training Loss', loss, on_step=True, on_epoch=True)
+        return loss
+    
+    def validation_step(self, batch, batch_idx):
+        inputs, labels = batch
 
-        self.log('Training Loss', loss, on_step=True, on_epoch=True)
+        if self.crop != None:
+            inputs = inputs[:, :, :self.crop, :self.crop]
+            labels = labels[:, :, :self.crop, :self.crop]
+        
+        labels = labels.squeeze().long()
+        outputs = self.forward(inputs)
+        loss = self.loss_fn(outputs, labels)
+
+        print(f'   VALIDATION: Batch {batch_idx}, loss {loss}')
+        if self.log == True:
+            self.log('Training Loss', loss, on_step=True, on_epoch=True)
         return loss
     
     def configure_optimizers(self):
@@ -103,3 +124,21 @@ class UNet(pl.LightningModule):
         '''
         model_return_numpy = channel_comparison(img)
         return model_return_numpy
+    
+    def validate_model(self, val_dataloader):
+        total_loss = 0
+        batches = 0
+        for data in val_dataloader:
+            batches +=1
+            inputs, labels = data
+            labels = labels.squeeze().long()
+            outputs = self.forward(inputs)
+            loss = self.loss_fn(outputs, labels)
+            total_loss += loss
+            
+            if batches > 100:
+                break
+        print('Avarage validation loss: ', total_loss / batches)
+        return total_loss / batches
+    
+    # def print_model_outputs(self, output, og = None, label = None):
