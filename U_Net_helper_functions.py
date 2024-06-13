@@ -2,6 +2,9 @@ import os
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import random
+from PIL import Image
 
 def plot_heatmap(data):
     """
@@ -78,3 +81,83 @@ def Train_Unet(train_dataloader, epochs, model,
             print(f'BATCH: {i}, LOSS: {loss}')
         print(f'End of epoch {epoch}')
     return model
+
+def validate_model(model, val_dataset, device = torch.device('cuda')):
+    model.eval()
+    with torch.no_grad():
+        length = len(val_dataset)
+        model = model
+        total_loss = 0
+        for i in range(length):
+            data, labels = val_dataset[i]
+            data = data.to(device)
+            labels = labels.to(device)
+            labels = labels.long()
+            output = model(data.unsqueeze(dim = 0))
+            loss = model.loss_fn(output, labels)
+            total_loss += loss.item()
+        return total_loss / length  
+
+def process_images(image_paths, label_paths, output_folder_image, output_folder_label, k=1):
+    """
+    Processes each image in image_paths by randomly cropping, rotating, and saving k times.
+
+    Args:
+        image_paths (list of str): List of paths to the input images.
+        label_paths (list of str): List of paths to the input labels.
+        output_folder (str): Path to the folder where processed images will be saved.
+        k (int): Number of times to process each image.
+    """
+    if not os.path.exists(output_folder_image):
+        raise Exception(f"{output_folder_image} No such file or directory") 
+        # os.makedirs(output_folder)
+    
+    for i in range(len(image_paths)):
+        image = Image.open(image_paths[i])
+        label = Image.open(label_paths[i])
+        image_name = os.path.basename(image_paths[i])
+        label_name = os.path.basename(label_paths[i])
+        for i in range(k):
+            cropped_image, cropped_label = random_crop(image, label, (512, 512))
+            rotated_image, rotated_label = random_rotate(cropped_image, cropped_label)
+            output_path_image = os.path.join(output_folder_image, f"{os.path.splitext(image_name)[0]}_{i}.tif")
+            output_path_label = os.path.join(output_folder_label, f"{os.path.splitext(label_name)[0]}_{i}.tif")
+            rotated_image.save(output_path_image, format='TIFF')
+            rotated_label.save(output_path_label, format='TIFF')
+
+def random_crop(image, label, size):
+    """
+    Randomly crops the image to the given size.
+
+    Args:
+        image (PIL.Image): The input image.
+        size (tuple): The size of the crop (width, height).
+
+    Returns:
+        PIL.Image: The cropped image.
+    """
+    width, height = image.size
+    new_width, new_height = size
+    if width < new_width or height < new_height:
+        raise ValueError("Crop size is larger than the image size.")
+    
+    left = random.randint(0, width - new_width)
+    top = random.randint(0, height - new_height)
+    right = left + new_width
+    bottom = top + new_height
+
+    return image.crop((left, top, right, bottom)), label.crop((left, top, right, bottom))
+
+def random_rotate(image, label, fillcolor = 32999, fillcolor_label = 0):
+    """
+    Randomly rotates the image by a random angle.
+
+    Args:
+        image (PIL.Image): The input image.
+
+    Returns:
+        PIL.Image: The rotated image.
+    """
+    angle = random.uniform(0, 360)
+    return image.rotate(angle, expand=False, fillcolor = fillcolor), label.rotate(angle, expand=False, fillcolor = fillcolor_label)
+

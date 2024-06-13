@@ -99,20 +99,22 @@ class UNet(pl.LightningModule):
         return loss
     
     def validation_step(self, batch, batch_idx):
-        inputs, labels = batch
+        self.eval()
+        with torch.no_grad():
+            inputs, labels = batch
 
-        if self.crop != None:
-            inputs = inputs[:, :, :self.crop, :self.crop]
-            labels = labels[:, :, :self.crop, :self.crop]
-        
-        labels = labels.squeeze().long()
-        outputs = self.forward(inputs)
-        loss = self.loss_fn(outputs, labels)
+            if self.crop != None:
+                inputs = inputs[:, :, :self.crop, :self.crop]
+                labels = labels[:, :, :self.crop, :self.crop]
+            
+            labels = labels.squeeze().long()
+            outputs = self.forward(inputs)
+            loss = self.loss_fn(outputs, labels)
 
-        print(f'   VALIDATION: Batch {batch_idx}, loss {loss}')
-        if self.log == True:
-            self.log('Training Loss', loss, on_step=True, on_epoch=True)
-        return loss
+            print(f'   VALIDATION: Batch {batch_idx}, loss {loss}')
+            if self.log == True:
+                self.log('Training Loss', loss, on_step=True, on_epoch=True)
+            return loss
     
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr = self.lr, betas = self.betas)
@@ -125,20 +127,22 @@ class UNet(pl.LightningModule):
         model_return_numpy = channel_comparison(img)
         return model_return_numpy
     
-    def validate_model(self, val_dataloader):
-        total_loss = 0
-        batches = 0
-        for data in val_dataloader:
-            batches +=1
-            inputs, labels = data
-            labels = labels.squeeze().long()
-            outputs = self.forward(inputs)
-            loss = self.loss_fn(outputs, labels)
-            total_loss += loss
-            
-            if batches > 100:
-                break
-        print('Avarage validation loss: ', total_loss / batches)
-        return total_loss / batches
+    def run_model_on_validation_dataloder(self, val_dataloader):
+        self.eval()
+        with torch.no_grad():
+            total_loss = 0
+            batches = 0
+            for data in val_dataloader:
+                batches +=1
+                inputs, labels = data
+                labels = labels.squeeze().long()
+                outputs = self.forward(inputs)
+                loss = self.loss_fn(outputs, labels)
+                total_loss += loss.item()
+                
+                if batches > 100:
+                    break
+            print('Avarage validation loss: ', total_loss / batches)
+            return total_loss / batches
     
     # def print_model_outputs(self, output, og = None, label = None):
