@@ -48,6 +48,13 @@ def plot_tifs(directory, mode):
 def img_to_tif(prefix, input_format='png'):
     img = cv2.imread(f'{prefix}.{input_format}')
     cv2.imwrite(f'{prefix}.tif', img)
+
+
+def to_negative(input_path, output_path):
+    img = cv2.imread(input_path, 1)
+    img = 255 - img
+    cv2.imwrite(output_path, img)    
+
     
 def to_gray_scale(filename, out):
     img = Image.open(filename)
@@ -72,11 +79,3 @@ to_gray_scale('data/CS_neurons/input/38_y.png', 'lol')
 # img1 = read_input_tif('data/Fluo-N2DL-HeLa/01/t012.tif')
 # fig1 = px.imshow(img1)
 # fig1.show()
-
-# img1 = read_seq_tif('data/Fluo-N2DL-HeLa/01_GT/TRA/man_track012.tif')
-# fig1 = px.imshow(img1)
-# fig1.show()
-
-# img2 = read_seq_tif('data/Fluo-N2DL-HeLa/01_GT/SEG/man_seg012.tif')
-# fig2 = px.imshow(img2)
-# fig2.show()

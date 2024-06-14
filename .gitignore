@@ -19,6 +19,7 @@
 
 ### CUSTOM ###
 data/
+.DS_Store
 
 
 ### PyCharm ###
