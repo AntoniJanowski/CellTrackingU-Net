@@ -1,5 +1,5 @@
 import os
-import rasterio
+# import rasterio
 import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
@@ -50,35 +50,24 @@ def img_to_tif(prefix, input_format='png'):
     cv2.imwrite(f'{prefix}.tif', img)
 
 
-def to_negative(input_path, output_path=None):
-    img = cv2.imread(input_path, 1)
-    img = 255 - img
-    if not output_path:
-        return img
-    cv2.imwrite(output_path, img)    
-
-    
-def to_gray_scale(filename, out=None):
+def img_transform(filename, output=None, light_bg=False):
+    # to gray scale
     img = Image.open(filename)
-    # Convert image to grayscale
-    gray_img = np.array(img.convert('L'))
-    print(f'{gray_img.shape=}')
-    if not out:
-        return gray_img
-    cv2.imwrite(out, gray_img)
+    img = np.array(img.convert('L'))
 
-def bg_to_gray():
-    pass
+    # negative
+    if light_bg:
+        img = 255 - img
+    
+    # bg to gray
+    img = np.where(img < 40, img + 115, img)
 
-to_gray_scale('data/CS_neurons/input/38_y.png', 'lol.tif')
-to_negative('lol.tif', 'lol_neg.tif')
-# to_gray_scale('data/DIC-C2DH-HeLa/01/t000.tif')
-
-
+    if not output:
+        return img
+    
+    cv2.imwrite(output, img)
 
 
-# Call the function with the path to your tif file
-#plot_tifs('data/DIC-C2DH-HeLa/01/', 'segmentation')
-# img1 = read_input_tif('data/Fluo-N2DL-HeLa/01/t012.tif')
-# fig1 = px.imshow(img1)
-# fig1.show()
+# img_transform('data/CS_neurons/input/38_y.png', output='neurons.tif')
+# img_transform('data/CS_BCCD/input/0a3b53c7-e7ab-4135-80aa-fd2079d727d6.jpg', output='BCCD.tif', light_bg=True)
+# img_transform('data/CS_blood/input/2_DAPI.tif', output='blood.tif')
