@@ -50,50 +50,24 @@ def img_to_tif(prefix, input_format='png'):
     cv2.imwrite(f'{prefix}.tif', img)
 
 
-def to_negative(input_path, output_path):
-    img = cv2.imread(input_path, 1)
-    img = 255 - img
-    cv2.imwrite(output_path, img)    
-
-    
-def to_gray_scale(filename, out):
+def img_transform(filename, output=None, light_bg=False):
+    # to gray scale
     img = Image.open(filename)
-    # Convert image to grayscale
-    gray_img = np.array(img.convert('L'))
-    cv2.imwrite(f'{out}.tif', gray_img)
+    img = np.array(img.convert('L'))
+
+    # negative
+    if light_bg:
+        img = 255 - img
+    
+    # bg to gray
+    img = np.where(img < 40, img + 115, img)
+
+    if not output:
+        return img
+    
+    cv2.imwrite(output, img)
 
 
-def bg_to_gray(input_path, output_path):
-    img = Image.open(input_path).convert('L')
-    pixels = img.getdata()
-
-    new_pixels = [0]* len(pixels)
-    for i, pixel in enumerate(pixels):
-        if pixel < 40:
-            new_pixels[i] = 115
-        else:
-            new_pixels[i] = pixel
-
-    img.putdata(new_pixels)
-    img.save(output_path)
-
-
-
-# to_gray_scale('data/CS_neurons/input/38_y.png', 'lol')
-# to_gray_scale('data/DIC-C2DH-HeLa/01/t000.tif')
-
-# to_negative('data/t024.tif')
-# img = Image.open('data/t024.tif')
-# data = img.load()
-# print(data[0, 0])
-
-# img_to_tif('data/neuron', format='jpg')
-to_gray_scale('data/neuron.jpg', 'data/neuron')
-bg_to_gray('data/neuron.tif', 'data/neuron.tif')
-
-
-# Call the function with the path to your tif file
-#plot_tifs('data/DIC-C2DH-HeLa/01/', 'segmentation')
-# img1 = read_input_tif('data/Fluo-N2DL-HeLa/01/t012.tif')
-# fig1 = px.imshow(img1)
-# fig1.show()
+# img_transform('data/CS_neurons/input/38_y.png', output='neurons.tif')
+# img_transform('data/CS_BCCD/input/0a3b53c7-e7ab-4135-80aa-fd2079d727d6.jpg', output='BCCD.tif', light_bg=True)
+# img_transform('data/CS_blood/input/2_DAPI.tif', output='blood.tif')
