@@ -4,6 +4,8 @@ import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
+from PIL import Image
 
 def read_seq_tif(file_path):
     # OUr tiffs have only one layer.
@@ -47,17 +49,34 @@ def img_to_tif(prefix, input_format='png'):
     img = cv2.imread(f'{prefix}.{input_format}')
     cv2.imwrite(f'{prefix}.tif', img)
     
+def to_gray_scale(filename, out):
+    img = Image.open(filename)
+    # Convert image to grayscale
+    gray_img = np.array(img.convert('L'))
+    cv2.imwrite(f'{out}.tif', gray_img)
+
+def to_neg():
+    pass
+
+def bg_to_gray():
+    pass
+
+to_gray_scale('data/CS_neurons/input/38_y.png', 'lol')
+# to_gray_scale('data/DIC-C2DH-HeLa/01/t000.tif')
+
+
+
 
 # Call the function with the path to your tif file
 #plot_tifs('data/DIC-C2DH-HeLa/01/', 'segmentation')
-img1 = read_input_tif('data/Fluo-N2DL-HeLa/01/t012.tif')
-fig1 = px.imshow(img1)
-fig1.show()
+# img1 = read_input_tif('data/Fluo-N2DL-HeLa/01/t012.tif')
+# fig1 = px.imshow(img1)
+# fig1.show()
 
-img1 = read_seq_tif('data/Fluo-N2DL-HeLa/01_GT/TRA/man_track012.tif')
-fig1 = px.imshow(img1)
-fig1.show()
+# img1 = read_seq_tif('data/Fluo-N2DL-HeLa/01_GT/TRA/man_track012.tif')
+# fig1 = px.imshow(img1)
+# fig1.show()
 
-img2 = read_seq_tif('data/Fluo-N2DL-HeLa/01_GT/SEG/man_seg012.tif')
-fig2 = px.imshow(img2)
-fig2.show()
+# img2 = read_seq_tif('data/Fluo-N2DL-HeLa/01_GT/SEG/man_seg012.tif')
+# fig2 = px.imshow(img2)
+# fig2.show()
