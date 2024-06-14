@@ -46,6 +46,13 @@ def plot_tifs(directory, mode):
 def img_to_tif(prefix, input_format='png'):
     img = cv2.imread(f'{prefix}.{input_format}')
     cv2.imwrite(f'{prefix}.tif', img)
+
+
+def to_negative(input_path, output_path):
+    img = cv2.imread(input_path, 1)
+    img = 255 - img
+    cv2.imwrite(output_path, img)    
+
     
 
 # Call the function with the path to your tif file
