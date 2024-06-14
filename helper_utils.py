@@ -79,7 +79,6 @@ def bg_to_gray(input_path, output_path):
 
 
 
-
 # to_gray_scale('data/CS_neurons/input/38_y.png', 'lol')
 # to_gray_scale('data/DIC-C2DH-HeLa/01/t000.tif')
 
