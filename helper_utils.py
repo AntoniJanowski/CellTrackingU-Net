@@ -50,25 +50,28 @@ def img_to_tif(prefix, input_format='png'):
     cv2.imwrite(f'{prefix}.tif', img)
 
 
-def to_negative(input_path, output_path):
+def to_negative(input_path, output_path=None):
     img = cv2.imread(input_path, 1)
     img = 255 - img
+    if not output_path:
+        return img
     cv2.imwrite(output_path, img)    
 
     
-def to_gray_scale(filename, out):
+def to_gray_scale(filename, out=None):
     img = Image.open(filename)
     # Convert image to grayscale
     gray_img = np.array(img.convert('L'))
-    cv2.imwrite(f'{out}.tif', gray_img)
-
-def to_neg():
-    pass
+    print(f'{gray_img.shape=}')
+    if not out:
+        return gray_img
+    cv2.imwrite(out, gray_img)
 
 def bg_to_gray():
     pass
 
-to_gray_scale('data/CS_neurons/input/38_y.png', 'lol')
+to_gray_scale('data/CS_neurons/input/38_y.png', 'lol.tif')
+to_negative('lol.tif', 'lol_neg.tif')
 # to_gray_scale('data/DIC-C2DH-HeLa/01/t000.tif')
 
 
