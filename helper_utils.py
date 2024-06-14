@@ -1,5 +1,5 @@
 import os
-import rasterio
+# import rasterio
 import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
@@ -62,16 +62,35 @@ def to_gray_scale(filename, out):
     gray_img = np.array(img.convert('L'))
     cv2.imwrite(f'{out}.tif', gray_img)
 
-def to_neg():
-    pass
 
-def bg_to_gray():
-    pass
+def bg_to_gray(input_path, output_path):
+    img = Image.open(input_path).convert('L')
+    pixels = img.getdata()
 
-to_gray_scale('data/CS_neurons/input/38_y.png', 'lol')
+    new_pixels = [0]* len(pixels)
+    for i, pixel in enumerate(pixels):
+        if pixel < 40:
+            new_pixels[i] = 115
+        else:
+            new_pixels[i] = pixel
+
+    img.putdata(new_pixels)
+    img.save(output_path)
+
+
+
+
+# to_gray_scale('data/CS_neurons/input/38_y.png', 'lol')
 # to_gray_scale('data/DIC-C2DH-HeLa/01/t000.tif')
 
+# to_negative('data/t024.tif')
+# img = Image.open('data/t024.tif')
+# data = img.load()
+# print(data[0, 0])
 
+# img_to_tif('data/neuron', format='jpg')
+to_gray_scale('data/neuron.jpg', 'data/neuron')
+bg_to_gray('data/neuron.tif', 'data/neuron.tif')
 
 
 # Call the function with the path to your tif file
