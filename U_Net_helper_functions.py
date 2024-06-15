@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import os
 import random
 from PIL import Image
+import seaborn as sns
 
 def plot_heatmap(data):
     """
@@ -161,3 +162,38 @@ def random_rotate(image, label, fillcolor = 32999, fillcolor_label = 0):
     angle = random.uniform(0, 360)
     return image.rotate(angle, expand=False, fillcolor = fillcolor), label.rotate(angle, expand=False, fillcolor = fillcolor_label)
 
+
+def plot_results(arr1, arr2, arr3):
+    """
+    This function takes three NumPy arrays and displays their heatmaps in a single row.
+    
+    Parameters:
+    arr1 (numpy.ndarray): First array.
+    arr2 (numpy.ndarray): Second array.
+    arr3 (numpy.ndarray): Third array.
+    """
+    
+    # Setting up the figure and axes
+    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+    
+    # Creating heatmaps
+    sns.heatmap(arr1, ax=axs[0], cbar=False, cmap='viridis')
+    axs[0].set_title('Orginal image')
+    axs[0].set_xticks([])
+    axs[0].set_yticks([])
+    
+    sns.heatmap(arr2, ax=axs[1], cbar=False, cmap='viridis')
+    axs[1].set_title('Label')
+    axs[1].set_xticks([])
+    axs[1].set_yticks([])
+    
+    sns.heatmap(arr3, ax=axs[2], cbar=False,cmap='viridis')
+    axs[2].set_title('Model prediction')
+    axs[2].set_xticks([])
+    axs[2].set_yticks([])
+    
+    # Adjusting the layout
+    plt.tight_layout()
+    
+    # Displaying the heatmaps
+    plt.show()
