@@ -175,6 +175,9 @@ def plot_results(arr1, arr2, arr3):
     
     # Setting up the figure and axes
     fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+
+    min_val = min(arr1.min(), arr2.min(), arr3.min())
+    max_val = max(arr1.max(), arr2.max(), arr3.max())
     
     # Creating heatmaps
     sns.heatmap(arr1, ax=axs[0], cbar=False, cmap='viridis')
@@ -182,12 +185,12 @@ def plot_results(arr1, arr2, arr3):
     axs[0].set_xticks([])
     axs[0].set_yticks([])
     
-    sns.heatmap(arr2, ax=axs[1], cbar=False, cmap='viridis')
+    sns.heatmap(arr2, ax=axs[1], cbar=False, cmap='viridis', vmin=min_val, vmax=max_val)
     axs[1].set_title('Label')
     axs[1].set_xticks([])
     axs[1].set_yticks([])
     
-    sns.heatmap(arr3, ax=axs[2], cbar=False,cmap='viridis')
+    sns.heatmap(arr3, ax=axs[2], cbar=False,cmap='viridis', vmin=min_val, vmax=max_val)
     axs[2].set_title('Model prediction')
     axs[2].set_xticks([])
     axs[2].set_yticks([])

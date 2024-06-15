@@ -6,7 +6,7 @@ from U_Net_helper_functions import *
 
 class TIF_dataset(Dataset):
 
-    def __init__(self, path_list_data, path_list_label, transform=None):
+    def __init__(self, path_list_data, path_list_label, transform=None, dataset_maximum = None):
         """
 
         All of our data is in the same format. I sugest using the silver truths as they are in the format ideal for training.
@@ -23,6 +23,7 @@ class TIF_dataset(Dataset):
         self.path_list_data = path_list_data
         self.path_list_label = path_list_label
         self.transform = transform
+        self.dataset_maximum = dataset_maximum
 
     def __len__(self):
         return len(self.path_list_data)
@@ -37,7 +38,11 @@ class TIF_dataset(Dataset):
         image_tensor = torch.from_numpy(image_np).unsqueeze(0)
         label_tensor = torch.from_numpy(label_np).unsqueeze(0)
 
-        image_tensor = image_tensor.float() / np.mean(image_np) #normalizing the image tensor
+        if self.dataset_maximum == None:
+            image_tensor = image_tensor.float() / np.mean(image_np) #normalizing the image tensor
+        else:
+            image_tensor = image_tensor.float() / self.dataset_maximum #normalizing the image tensor
+        
         label_tensor = label_tensor.float()
 
 

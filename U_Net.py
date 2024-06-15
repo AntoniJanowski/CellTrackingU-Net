@@ -142,7 +142,7 @@ class UNet(pl.LightningModule):
                 
                 if batches > 100:
                     break
-            print('Avarage validation loss: ', total_loss / batches)
+            print('Avarage validation loss per batch: ', total_loss / batches)
             return total_loss / batches
     
     # def print_model_outputs(self, output, og = None, label = None):
