@@ -127,11 +127,12 @@ class UNet(pl.LightningModule):
         model_return_numpy = channel_comparison(img)
         return model_return_numpy
     
-    def run_model_on_validation_dataloder(self, val_dataloader):
+    def run_model_on_validation_dataloder(self, val_dataloader, calculate_pixel_wise_accuracy = False):
         self.eval()
         with torch.no_grad():
             total_loss = 0
             batches = 0
+            total_accuracy = 0
             for data in val_dataloader:
                 batches +=1
                 inputs, labels = data
@@ -139,10 +140,18 @@ class UNet(pl.LightningModule):
                 outputs = self.forward(inputs)
                 loss = self.loss_fn(outputs, labels)
                 total_loss += loss.item()
+
+                if calculate_pixel_wise_accuracy == True:
+                    output_mask = torch.argmax(outputs, dim = 1)
+                    # print(output_mask.shape, labels.shape)
+                    accuracy = pixel_wise_accuracy(output_mask, labels)
+                    total_accuracy += accuracy
                 
-                if batches > 100:
-                    break
             print('Avarage validation loss per batch: ', total_loss / batches)
+            if calculate_pixel_wise_accuracy == True:
+                print('Avarage pixel wise accuracy per batch: ', total_accuracy / batches)
+                return total_loss / batches, total_accuracy / batches
+            
             return total_loss / batches
     
     # def print_model_outputs(self, output, og = None, label = None):

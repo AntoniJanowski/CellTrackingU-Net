@@ -200,3 +200,55 @@ def plot_results(arr1, arr2, arr3):
     
     # Displaying the heatmaps
     plt.show()
+
+def pixel_wise_accuracy(tensor1, tensor2):
+    """
+    Calculate the pixel-wise accuracy between two tensors.
+    
+    Parameters:
+    tensor1 (torch.Tensor): First tensor.
+    tensor2 (torch.Tensor): Second tensor.
+    
+    Returns:
+    float: Pixel-wise accuracy.
+    """
+    # Ensure the tensors have the same shape
+    assert tensor1.shape == tensor2.shape, "Tensors must have the same shape"
+    
+    # Calculate the number of matching elements
+    matching_elements = torch.sum(tensor1 == tensor2).item()
+    
+    # Calculate the total number of elements
+    total_elements = tensor1.numel()
+    
+    # Calculate pixel-wise accuracy
+    accuracy = matching_elements / total_elements
+    
+    return accuracy
+
+def true_positive_rate(predictions, ground_truth):
+    """
+    Calculate the true positive rate (TPR) between two binary tensors.
+    
+    Parameters:
+    predictions (torch.Tensor): Predicted binary tensor.
+    ground_truth (torch.Tensor): Ground truth binary tensor.
+    
+    Returns:
+    float: True positive rate (TPR).
+    """
+    # Ensure the tensors have the same shape
+    assert predictions.shape == ground_truth.shape, "Tensors must have the same shape"
+    
+    # Calculate true positives and false negatives
+    true_positives = torch.sum((predictions == 1) & (ground_truth == 1)).item()
+    false_negatives = torch.sum((predictions == 0) & (ground_truth == 1)).item()
+
+    # Avoid division by zero
+    if true_positives + false_negatives == 0:
+        return 0.0
+    
+    # Calculate TPR
+    tpr = true_positives / (true_positives + false_negatives)
+    
+    return tpr
