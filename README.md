@@ -5,6 +5,8 @@ Cell segmentation is one of the central tasks in biomedical image analysis. It e
 
 This project aims to develop a Convolutional Neural Network (CNN) for cell segmentation in microscopy images.
 
+![Example U-net output](images/unet_output.png)
+
 ## Model and Data
 The model we use is 2D U-Net model with zero-padding in the convolution layers. 
 The datasets comprise 2D time-lapse microscopy image data from the Cell Tracking Challenge of three different imaging modalities:
