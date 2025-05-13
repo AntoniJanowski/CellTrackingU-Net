@@ -36,4 +36,4 @@ The datasets were taken from the official challenge page: https://celltrackingch
 - `U_Net.py`: Contains the U-Net model implementation  
 - `notebooks/Training_pipeline.ipynb`: Jupyter notebook showing data loading, augmentation, and training steps  
 - `Train_U_Net_example.py`: Script for training the model; set the path to the preprocessed data folder inside the script before running
-Additional experimental notebooks can be found in notebooks/_WIP/.
+- Additional experimental notebooks can be found in notebooks/_WIP/.
