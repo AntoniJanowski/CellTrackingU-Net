@@ -252,3 +252,31 @@ def true_positive_rate(predictions, ground_truth):
     tpr = true_positives / (true_positives + false_negatives)
     
     return tpr
+
+def create_folder_if_not_exists(path, folder_name):
+    folder_path = os.path.join(path, folder_name)
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+def perform_data_augmentation_on_dataset(path_to_data_folder, dataset_name, k):
+    """
+    Performs data augmentation on a given dataset, randomly cropping and rotating the images within, repeating it k times for each image
+    args:
+        -path_to_data_folder: Path to a folder with extracted datasets
+        -dataset_name: name of the dataset to agument
+        -k: Number of copies of each image from the dataset
+    """
+    create_folder_if_not_exists(path_to_data_folder + dataset_name, 'augmented_images')
+    create_folder_if_not_exists(path_to_data_folder + dataset_name, 'augmented_image_labels')
+
+    paths_01 =  list_files_in_folder(convert_backslashes_to_forward_slashes(path_to_data_folder + dataset_name + dataset_name + '/01'))
+    paths_01_labels =  list_files_in_folder(convert_backslashes_to_forward_slashes(path_to_data_folder + dataset_name + dataset_name + '/01_ST'))
+    paths_02 =  list_files_in_folder(convert_backslashes_to_forward_slashes(path_to_data_folder + dataset_name + dataset_name + '/02'))
+    paths_02_labels =  list_files_in_folder(convert_backslashes_to_forward_slashes(path_to_data_folder + dataset_name + dataset_name + '/02_ST'))
+
+    image_paths = paths_01 + paths_02
+    label_paths = paths_01_labels + paths_02_labels
+
+    output_folder_image = convert_backslashes_to_forward_slashes(path_to_data_folder + dataset_name + r"/augmented_images")
+    output_folder_label = convert_backslashes_to_forward_slashes(path_to_data_folder + dataset_name + r"/augmented_image_labels")
+    process_images(image_paths, label_paths, output_folder_image, output_folder_label, k=k)

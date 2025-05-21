@@ -6,3 +6,4 @@ matplotlib
 torchvision
 ipykernel
 opencv-python
+seaborn
