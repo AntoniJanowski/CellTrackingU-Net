@@ -37,3 +37,12 @@ The datasets were taken from the official challenge page: https://celltrackingch
 - `notebooks/Training_pipeline.ipynb`: Jupyter notebook showing data loading, augmentation, and training steps  
 - `Train_U_Net_example.py`: Script for training the model; set the path to the preprocessed data folder inside the script before running
 - Additional experimental notebooks can be found in notebooks/_WIP/.
+
+## How to Run
+
+1. Download the three datasets from the [Cell Tracking Challenge](https://celltrackingchallenge.net/2d-datasets/).
+2. Extract the zip folders into a single directory, for example `data/`.
+3. Open the `Training_pipeline.ipynb` notebook and set the `path_to_data_folder` variable at the top of the notebook to point to your data directory.
+4. Run the notebook. It will perform data augmentation, train the model, and save the results.
+
+**Note:** Training without a GPU may take a long time.
