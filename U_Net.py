@@ -4,6 +4,19 @@ from U_Net_helper_functions import *
 import lightning.pytorch as pl
 
 class Convolutional_Block(nn.Module):
+    """
+    A convolutional block consisting of three Conv2D layers, each followed by 
+    Batch Normalization, ReLU activation, and Dropout. A residual connection 
+    is added after the second and third convolutions.
+
+    Args:
+        in_channels (int): Number of input channels.
+        out_channels (int): Number of output channels.
+        kernel_size (int, optional): Size of the convolution kernel. Default is 3.
+        padding (int, optional): Padding added to all sides of the input. Default is 1.
+        stride (int, optional): Stride of the convolution. Default is 1.
+        dropout (float, optional): Dropout probability. Default is 0.1.
+    """
     def __init__(self, in_channels, out_channels, kernel_size=3, padding=1, stride = 1, dropout = 0.1):
         super(Convolutional_Block, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
@@ -25,6 +38,29 @@ class Convolutional_Block(nn.Module):
     
 
 class UNet(pl.LightningModule):
+    """
+    A U-Net architecture implemented in PyTorch Lightning for image segmentation tasks.
+
+    The model is built using a symmetric encoder-decoder structure:
+    - The encoder path applies convolutional blocks followed by max pooling, 
+      using the number of channels specified in `list_of_chanel_numbers`.
+    - The decoder path reverses this structure using transposed convolutions 
+      (upsampling) and corresponding convolutional blocks.
+
+    Args:
+        list_of_chanel_numbers (list of int): Defines the number of channels 
+            at each level of the U-Net. Each consecutive pair is used to create
+            a convolutional block in the encoder, followed by max pooling.
+            The reversed list is used in the decoder with transposed convolutions.
+        crop (int, optional): Spatial size to crop inputs/labels for evaluation. Default is None.
+        loss_fn (nn.Module, optional): Loss function to be used. Default is CrossEntropyLoss.
+        lr (float, optional): Learning rate for the optimizer. Default is 0.001.
+        betas (tuple of float, optional): Betas for the Adam optimizer. Default is (0.9, 0.999).
+        kernel_size (int, optional): Kernel size for all convolutional layers. Default is 3.
+        dropout (float, optional): Dropout probability in convolutional blocks. Default is 0.1.
+        padding (int, optional): Padding size for convolutional layers. Default is 1.
+        log (bool, optional): Whether to log metrics during training/validation. Default is False.
+    """
     def __init__(self, list_of_chanel_numbers, crop = None, loss_fn = torch.nn.CrossEntropyLoss(), lr = 0.001, betas = (0.9, 0.999), kernel_size=3, dropout = 0.1, padding = 1,
                   log = False):
         super(UNet, self).__init__()
@@ -57,28 +93,19 @@ class UNet(pl.LightningModule):
     def forward(self, x):
         residuals = []
         for i, module in enumerate(self.bottom_path):
-            # print(f'starting to process module {i}, x.shape = {x.shape}')
             x = module(x)
             residuals.append(x)
             if i < len((self.bottom_path)):
-                # print(f'POOOOOOLING {i}')
                 x = self.pool(x)
-            # residuals.append(x)
-            # print(f'Finished processing module {i}, x.shape = {x.shape}')
 
         residuals.reverse()
         x = self.bottom_block(x)
-        # print(f'bottom path over, x.shape: {x.shape}')
 
         for i, module in enumerate(self.top_path):
-            # print(f'starting to process module {i}, x.shape = {x.shape}')
             if i >= 0:
-                # print(f'UP CONV: x.shape before: {x.shape}')
                 x = self.UpConvs[i](x)
-                # print(f'UP CONV: x.shape after : {x.shape}')
             x = x + residuals[i]
             x = module(x)
-            # print(f'Finished processing module {i}, x.shape = {x.shape}')
             
         return x
     

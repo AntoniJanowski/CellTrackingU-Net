@@ -319,4 +319,7 @@ pyrightconfig.json
 pyvenv.cfg
 pip-selfcheck.json
 
+### Lightining Logs###
+notebooks/lightning_logs/
+
 # End of https://www.toptal.com/developers/gitignore/api/python,venv,pycharm,git
